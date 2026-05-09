@@ -117,9 +117,9 @@ export default function TermsPage() {
               </p>
             </section>
 
-            <section>
+             <section>
               <h2 className="text-xl font-semibold mb-3">9. Contact</h2>
-              <p>For questions about these terms: steph.schie@googlemail.com</p>
+              <p>For questions about these terms, please open an issue on the GitHub repository.</p>
             </section>
           </div>
         </div>
