@@ -20,12 +20,12 @@ export default function PrivacyPage() {
           </TypographyP>
 
           <div className="mt-8 space-y-6 text-gray-700">
-            <section>
+             <section>
               <h2 className="text-xl font-semibold mb-3">1. Data Controller</h2>
               <p>
-                <strong>Controller:</strong> Stephan Schielke<br />
-                <strong>Contact:</strong> steph.schie@googlemail.com<br />
-                <strong>Instance:</strong> Self-hosted at inbox-zero.up-to-the.cloud
+                <strong>Controller:</strong> Private Individual<br />
+                <strong>Instance:</strong> Self-hosted at inbox-zero.up-to-the.cloud<br />
+                <strong>Contact:</strong> For privacy inquiries, contact via GitHub Issues
               </p>
             </section>
 
@@ -87,9 +87,9 @@ export default function PrivacyPage() {
               </p>
             </section>
 
-            <section>
+             <section>
               <h2 className="text-xl font-semibold mb-3">7. Contact</h2>
-              <p>Email: steph.schie@googlemail.com</p>
+              <p>For privacy inquiries, please open an issue on the GitHub repository.</p>
               <p className="mt-2 text-sm text-gray-500">
                 This self-hosted instance operates independently from Inbox Zero Inc.
                 For the official service, visit{" "}
