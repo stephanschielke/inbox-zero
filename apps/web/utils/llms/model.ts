@@ -111,7 +111,8 @@ function selectModel(
         provider: Provider.OPEN_AI,
         modelName,
         model: createOpenAI({
-          apiKey: resolveApiKey(aiApiKey, env.OPENAI_API_KEY),
+          apiKey: resolveApiKey(aiApiKey, env.OPENAI_API_KEY) || "no-key",
+          ...(env.OPENAI_BASE_URL ? { baseURL: env.OPENAI_BASE_URL } : {}),
         })(modelName),
         providerOptions: openAiProviderOptions,
       };

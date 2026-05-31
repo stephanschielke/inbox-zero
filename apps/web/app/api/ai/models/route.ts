@@ -3,11 +3,15 @@ import OpenAI from "openai";
 import prisma from "@/utils/prisma";
 import { withEmailAccount } from "@/utils/middleware";
 import { Provider } from "@/utils/llms/config";
+import { env } from "@/env";
 
 export type OpenAiModelsResponse = Awaited<ReturnType<typeof getOpenAiModels>>;
 
 async function getOpenAiModels({ apiKey }: { apiKey: string }) {
-  const openai = new OpenAI({ apiKey });
+  const openai = new OpenAI({
+    apiKey,
+    ...(env.OPENAI_BASE_URL ? { baseURL: env.OPENAI_BASE_URL } : {}),
+  });
 
   const models = await openai.models.list();
 

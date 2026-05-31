@@ -151,6 +151,7 @@ const parsedEnv = createEnv({
 
     LLM_API_KEY: z.string().optional(),
     OPENAI_API_KEY: z.string().optional(),
+    OPENAI_BASE_URL: z.string().optional(),
     AZURE_API_KEY: z.string().optional(),
     AZURE_RESOURCE_NAME: z.string().optional(),
     AZURE_API_VERSION: z.string().optional(),
