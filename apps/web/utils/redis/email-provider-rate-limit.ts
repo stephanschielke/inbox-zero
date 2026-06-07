@@ -92,7 +92,7 @@ export async function deleteEmailProviderRateLimitStateFromRedis({
 export function isEmailProviderRateLimitRedisConfigured() {
   return (
     env.NODE_ENV === "test" ||
-    Boolean(env.UPSTASH_REDIS_URL && env.UPSTASH_REDIS_TOKEN)
+    Boolean(env.REDIS_URL || (env.UPSTASH_REDIS_URL && env.UPSTASH_REDIS_TOKEN))
   );
 }
 
