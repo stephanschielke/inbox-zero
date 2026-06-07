@@ -17,14 +17,45 @@ type ScanOptions = {
   count?: number;
 };
 
+export interface KvClient {
+  del(...keys: string[]): Promise<number>;
+  eval<A extends unknown[], R>(
+    script: string,
+    keys: string[],
+    args: A,
+  ): Promise<R>;
+  expire(key: string, seconds: number): Promise<number>;
+  get<T>(key: string): Promise<T | null>;
+  hdel(key: string, ...fields: string[]): Promise<number>;
+  hget<T>(key: string, field: string): Promise<T | null>;
+  hgetall<T extends Record<string, unknown>>(key: string): Promise<T | null>;
+  hincrby(key: string, field: string, increment: number): Promise<number>;
+  hincrbyfloat(key: string, field: string, increment: number): Promise<number>;
+  hset(
+    key: string,
+    fieldOrObj: string | Record<string, unknown>,
+    value?: unknown,
+  ): Promise<number>;
+  incr(key: string): Promise<number>;
+  publish(channel: string, message: string): Promise<number>;
+  scan(
+    cursor: string | number,
+    opts?: ScanOptions,
+  ): Promise<[string, string[]]>;
+  set(key: string, value: unknown, opts?: SetOptions): Promise<"OK" | null>;
+  ttl(key: string): Promise<number>;
+  unlink(...keys: string[]): Promise<number>;
+  zrem(key: string, ...members: string[]): Promise<number>;
+}
+
 // Fork delta: when REDIS_URL is set we talk RESP directly (drops serverless-redis-http).
 // Without it, upstream's Upstash HTTP client is used unchanged.
-export const redis = env.REDIS_URL
+export const redis: KvClient = env.REDIS_URL
   ? makeKvClient(env.REDIS_URL)
-  : new UpstashRedis({
+  : (new UpstashRedis({
       url: env.UPSTASH_REDIS_URL,
       token: env.UPSTASH_REDIS_TOKEN,
-    });
+    }) as unknown as KvClient);
 
 export async function expire(key: string, seconds: number) {
   return redis.expire(key, seconds);
@@ -93,17 +124,21 @@ function setOptionsToVariadic(opts?: SetOptions): (string | number)[] {
   return args;
 }
 
-function makeKvClient(url: string) {
+function makeKvClient(url: string): KvClient {
   return {
     async get<T>(key: string): Promise<T | null> {
       return decode<T>(await getClient(url).get(key));
     },
-    async set(key: string, value: unknown, opts?: SetOptions) {
+    async set(
+      key: string,
+      value: unknown,
+      opts?: SetOptions,
+    ): Promise<"OK" | null> {
       return getClient(url).set(
         key,
         encode(value),
         ...(setOptionsToVariadic(opts) as []),
-      );
+      ) as Promise<"OK" | null>;
     },
     async del(...keys: string[]) {
       return getClient(url).del(...keys);
@@ -125,7 +160,9 @@ function makeKvClient(url: string) {
       }
       return getClient(url).hset(key, flat);
     },
-    async hgetall<T>(key: string): Promise<T | null> {
+    async hgetall<T extends Record<string, unknown>>(
+      key: string,
+    ): Promise<T | null> {
       const raw = await getClient(url).hgetall(key);
       if (!raw || Object.keys(raw).length === 0) return null;
       const out: Record<string, unknown> = {};
@@ -137,8 +174,12 @@ function makeKvClient(url: string) {
     async hincrby(key: string, field: string, increment: number) {
       return getClient(url).hincrby(key, field, increment);
     },
-    async hincrbyfloat(key: string, field: string, increment: number) {
-      return getClient(url).hincrbyfloat(key, field, increment);
+    async hincrbyfloat(
+      key: string,
+      field: string,
+      increment: number,
+    ): Promise<number> {
+      return Number(await getClient(url).hincrbyfloat(key, field, increment));
     },
     async hdel(key: string, ...fields: string[]) {
       return getClient(url).hdel(key, ...fields);
@@ -183,7 +224,7 @@ function makeKvClient(url: string) {
         script,
         keys.length,
         ...keys,
-        ...(args as unknown[]),
+        ...(args as (string | number)[]),
       ) as Promise<R>;
     },
   };
